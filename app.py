@@ -75,17 +75,17 @@ def available(day): return [s for s in SLOTS if s not in used(day)]
 
 def tg(msg):
     if TG_TOKEN and TG_CHAT:
-    try:
-        r = requests.post(
-            f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-            json={"chat_id": TG_CHAT, "text": text},
-            timeout=10
-        )
-        print("TELEGRAM:", r.status_code, r.text)
-    except Exception as e:
-        print("TELEGRAM ERROR:", e)
-else:
-    print("TELEGRAM ERROR: TOKEN oder CHAT_ID fehlt", flush=True)
+        try:
+            r = requests.post(
+                f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+                json={"chat_id": TG_CHAT, "text": msg},
+                timeout=10
+            )
+            print("TELEGRAM:", r.status_code, r.text)
+        except Exception as e:
+            print("TELEGRAM ERROR:", e)
+    else:
+        print("TELEGRAM ERROR: TOKEN oder CHAT_ID fehlt", flush=True)
 
 @app.route("/",methods=["GET","POST"])
 def index():
