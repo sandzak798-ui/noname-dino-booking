@@ -126,7 +126,7 @@ def admin():
     month_rows=c.execute("SELECT * FROM bookings WHERE booking_date BETWEEN ? AND ?",(first.isoformat(),last.isoformat())).fetchall()
     stats={"month":len(month_rows),"noshow":sum(1 for r in month_rows if r["status"]=="nije_dosao"),
            "done":sum(1 for r in month_rows if r["status"]=="zavrseno"),
-           "today":c.execute("SELECT COUNT(*) FROM bookings WHERE booking_date=? AND status!='otkazano'",(today.isoformat(),)).fetchone()[0]}
+           "today":c.execute("SELECT COUNT(*) AS n FROM bookings WHERE booking_date=? AND status!='otkazano'",(today.isoformat(),)).fetchone()["n"]}
     c.close()
     weeks=calendar.Calendar(firstweekday=0).monthdatescalendar(y,m)
     prev=(first-timedelta(days=1)); nxt=(last+timedelta(days=1))
