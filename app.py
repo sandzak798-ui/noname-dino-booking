@@ -1,4 +1,6 @@
 import os, sqlite3, calendar
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, Response
 import requests
@@ -13,6 +15,23 @@ SLOTS=[f"{h:02d}:00" for h in range(9,19)]
 STATUS={"dolazi":"Dolazi","zavrseno":"Završeno","nije_dosao":"Nije došao","otkazano":"Otkazano"}
 
 def conn():
+    database_url=os.environ.get("DATABASE_URL","").strip()
+    if database_url:
+        c=psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+        cur=c.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS bookings(
+          id SERIAL PRIMARY KEY,
+          booking_date TEXT NOT NULL,
+          booking_time TEXT NOT NULL,
+          name TEXT NOT NULL,
+          phone TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'dolazi',
+          recurring INTEGER NOT NULL DEFAULT 0,
+          series_id TEXT,
+          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(booking_date,booking_time))""")
+        c.commit()
+        return DBConn(c, True)
     c=sqlite3.connect(DB); c.row_factory=sqlite3.Row
     c.execute("""CREATE TABLE IF NOT EXISTS bookings(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,12 +42,32 @@ def conn():
       series_id TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(booking_date,booking_time))""")
-    # migrate older db safely
     cols={r[1] for r in c.execute("PRAGMA table_info(bookings)").fetchall()}
     if "status" not in cols: c.execute("ALTER TABLE bookings ADD COLUMN status TEXT NOT NULL DEFAULT 'dolazi'")
     if "recurring" not in cols: c.execute("ALTER TABLE bookings ADD COLUMN recurring INTEGER NOT NULL DEFAULT 0")
     if "series_id" not in cols: c.execute("ALTER TABLE bookings ADD COLUMN series_id TEXT")
-    c.commit(); return c
+    c.commit()
+    return DBConn(c, False)
+
+class DBConn:
+    def __init__(self, raw, pg):
+        self.raw=raw; self.pg=pg
+    def _sql(self, q):
+        return q.replace("?", "%s") if self.pg else q
+    def execute(self, q, params=()):
+        if self.pg:
+            cur=self.raw.cursor()
+            cur.execute(self._sql(q), params)
+            return CursorWrap(cur)
+        return CursorWrap(self.raw.execute(q, params))
+    def commit(self): return self.raw.commit()
+    def close(self): return self.raw.close()
+
+class CursorWrap:
+    def __init__(self, cur): self.cur=cur
+    def fetchall(self): return self.cur.fetchall()
+    def fetchone(self): return self.cur.fetchone()
+    def __iter__(self): return iter(self.cur)
 
 def used(day):
     c=conn(); x={r["booking_time"] for r in c.execute("SELECT booking_time FROM bookings WHERE booking_date=? AND status!='otkazano'",(day,))}; c.close(); return x
@@ -48,7 +87,7 @@ def index():
             flash("Molimo popunite sva polja i izaberite termin."); return redirect(url_for("index",date=selected))
         try:
             c=conn(); c.execute("INSERT INTO bookings(booking_date,booking_time,name,phone) VALUES(?,?,?,?)",(selected,tm,name,phone)); c.commit(); c.close()
-        except sqlite3.IntegrityError:
+        except Exception as e:
             flash("Ovaj termin je upravo rezervisan. Izaberite drugi."); return redirect(url_for("index",date=selected))
         tg(f"✂️ NOVA REZERVACIJA – NoName by Dino\n👤 {name}\n📞 {phone}\n📅 {selected}\n🕐 {tm}")
         return render_template("success.html",name=name,date=selected,time=tm)
@@ -127,7 +166,7 @@ def recurring():
             try:
                 c.execute("""INSERT INTO bookings(booking_date,booking_time,name,phone,recurring,series_id)
                 VALUES(?,?,?,?,1,?)""",(day,tm,name,phone,series)); added+=1
-            except sqlite3.IntegrityError: skipped.append(day)
+            except Exception as e: skipped.append(day)
         c.commit(); c.close()
         tg(f"🔁 TRAJNI TERMIN – NoName by Dino\n👤 {name}\n📞 {phone}\n📅 Svake sedmice od {start}\n🕐 {tm}\n✅ Dodano: {added}")
         flash(f"Trajni termin kreiran: {added} termina." + (f" Preskočeno: {len(skipped)} zauzetih termina." if skipped else ""))
