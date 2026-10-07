@@ -78,12 +78,12 @@ def tg(msg):
     try:
         r = requests.post(
             f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-            json={"chat_id": TG_CHAT, "text": msg},
+            json={"chat_id": TG_CHAT, "text": text},
             timeout=10
         )
-        print("TELEGRAM:", r.status_code, r.text, flush=True)
+        print("TELEGRAM:", r.status_code, r.text)
     except Exception as e:
-        print("TELEGRAM ERROR:", repr(e), flush=True)
+        print("TELEGRAM ERROR:", e)
 else:
     print("TELEGRAM ERROR: TOKEN oder CHAT_ID fehlt", flush=True)
 
