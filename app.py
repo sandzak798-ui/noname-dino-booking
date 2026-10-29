@@ -201,8 +201,7 @@ def recurring():
 @app.route('/admin/logout')
 def logout():
     session.clear(); return redirect(url_for('index'))
-if __name__ == '__main__': app.run(host='0.0.0.0',port=int(os.environ.get('PORT',5000)))import os, sqlite3, calendar, uuid
-import psycopg2
+if __name__ == '__main__': app.run(host='0.0.0.0',port=int(os.environ.get('PORT',5000)))import os
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, Response
