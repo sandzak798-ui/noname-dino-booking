@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.nd-booking{--nd-gold:#cbb58b;--nd-muted:#aaa8a3;max-width:920px;margin:0 auto 64px;color:#f6f3ed;font-family:inherit}
+.nd-booking *{box-sizing:border-box}
+.nd-booking .nd-intro{text-align:center;padding:42px 16px 32px}
+.nd-booking .nd-kicker{color:var(--nd-gold);font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase}
+.nd-booking h1{font-size:clamp(36px,6vw,66px);letter-spacing:-.045em;line-height:1.06;margin:15px 0 13px;color:#f6f3ed}
+.nd-booking h1 em{font-family:Georgia,serif;font-weight:400;color:var(--nd-gold)}
+.nd-booking .nd-sub{font-size:14px;color:var(--nd-muted);line-height:1.7}
+.nd-booking .nd-panel{background:#181818;border:1px solid #34312c;border-radius:22px;padding:clamp(20px,4vw,40px);box-shadow:0 24px 65px #0005}
+.nd-booking .nd-section{margin-bottom:33px}
+.nd-booking .nd-heading{display:flex;align-items:center;gap:12px;margin:0 0 17px;color:#f5f1e9;font-weight:600;font-size:15px}
+.nd-booking .nd-num{color:var(--nd-gold);font-size:12px;letter-spacing:.12em}
+.nd-booking .nd-services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.nd-booking .nd-service{position:relative;cursor:pointer;display:block;margin:0}
+.nd-booking .nd-service input{position:absolute;opacity:0;width:1px;height:1px}
+.nd-booking .nd-service-body{display:flex;min-height:130px;flex-direction:column;justify-content:space-between;gap:18px;padding:20px;border:1px solid #44413c;background:#242321;border-radius:14px;transition:.2s}
+.nd-booking .nd-service input:checked+.nd-service-body{border-color:var(--nd-gold);background:#302b23;box-shadow:inset 0 0 0 1px var(--nd-gold)}
+.nd-booking .nd-service input:focus-visible+.nd-service-body{outline:2px solid white;outline-offset:3px}
+.nd-booking .nd-service-name{font-size:17px;font-weight:650;line-height:1.35;color:#fff}
+.nd-booking .nd-service-foot{display:flex;align-items:center;justify-content:space-between;color:#d6c5a6;font-size:12px}
+.nd-booking .nd-service-dot{width:17px;height:17px;border:1px solid #8b8274;border-radius:50%;display:inline-block}
+.nd-booking input:checked+.nd-service-body .nd-service-dot{border:5px solid var(--nd-gold)}
+.nd-booking input[type=date],.nd-booking .nd-details input{width:100%;min-height:50px;border-radius:10px;border:1px solid #49453e;background:#252421;color:#fff;padding:12px 15px;font:inherit;color-scheme:dark}
+.nd-booking .nd-legend{display:flex;gap:17px;flex-wrap:wrap;font-size:12px;color:#bdb9b2;margin:-5px 0 15px}
+.nd-booking .nd-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:#58b98a}
+.nd-booking .nd-legend .nd-red{background:#df6b6b}
+.nd-booking .nd-times{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.nd-booking .nd-time{display:block;position:relative;cursor:pointer;margin:0}
+.nd-booking .nd-time input{position:absolute;opacity:0;width:1px;height:1px}
+.nd-booking .nd-time span{display:block;padding:13px 4px;text-align:center;border-radius:10px;font-size:14px;font-weight:650;background:#203c32;color:#a9f0c8;border:1px solid #397c5c;transition:.2s}
+.nd-booking .nd-time input:checked+span{background:#b7ebcc;color:#103c28;border-color:#b7ebcc}
+.nd-booking .nd-time input:focus-visible+span{outline:2px solid white;outline-offset:3px}
+.nd-booking .nd-time.is-busy{cursor:not-allowed}
+.nd-booking .nd-time.is-busy span{background:#3c2326;color:#f3a8ad;border-color:#774349;text-decoration:line-through;opacity:.8}
+.nd-booking .nd-details{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nd-booking .nd-submit{width:100%;border:1px solid #d4c19b;border-radius:11px;padding:17px 20px;background:#cbb58b;color:#181713;font-size:13px;font-weight:800;letter-spacing:.09em;cursor:pointer}
+.nd-booking .nd-submit:hover{background:#e0c99b}
+.nd-booking .nd-note{color:#aaa8a3;font-size:12px;text-align:center;margin-top:14px}
+.nd-booking .nd-empty{color:#c7bcb0;padding:16px 0}
+@media(max-width:640px){.nd-booking .nd-services,.nd-booking .nd-details{grid-template-columns:1fr}.nd-booking .nd-times{grid-template-columns:repeat(3,minmax(0,1fr))}.nd-booking .nd-intro{padding-top:20px}}
+</style>
+<div class="nd-booking">
+ <header class="nd-intro"><div class="nd-kicker">NoName · by Dino</div><h1>Vrijeme je za <em>novi look.</em></h1><p class="nd-sub">Tvoj stil. Tvoj termin. Rezerviši jednostavno.</p></header>
+ <div class="nd-panel"><form method="post" id="nd-form">
+  <section class="nd-section"><h2 class="nd-heading"><span class="nd-num">01 /</span> Odaberi uslugu</h2><div class="nd-services">
+   <label class="nd-service"><input type="radio" name="service" value="sisanje_pranje_brada" {% if service == 'sisanje_pranje_brada' %}checked{% endif %}><span class="nd-service-body"><span class="nd-service-name">Šišanje i brada</span><span class="nd-service-foot"><span>30 minuta</span><span class="nd-service-dot"></span></span></span></label>
+   <label class="nd-service"><input type="radio" name="service" value="sisanje_pranje_farbanje_brada" {% if service == 'sisanje_pranje_farbanje_brada' %}checked{% endif %}><span class="nd-service-body"><span class="nd-service-name">Šišanje, farbanje i brada</span><span class="nd-service-foot"><span>60 minuta</span><span class="nd-service-dot"></span></span></span></label>
+  </div></section>
+  <section class="nd-section"><h2 class="nd-heading"><span class="nd-num">02 /</span> Izaberi datum</h2><input type="date" name="date" id="nd-date" value="{{ date }}" min="{{ today }}" required></section>
+  <section class="nd-section"><h2 class="nd-heading"><span class="nd-num">03 /</span> Odaberi vrijeme</h2><div class="nd-legend"><span><i></i>Slobodno</span><span><i class="nd-red"></i>Zauzeto</span></div><div class="nd-times">
+   {% for s in slots %}<label class="nd-time {% if s not in free_slots %}is-busy{% endif %}"><input type="radio" name="time" value="{{ s }}" {% if s not in free_slots %}disabled{% endif %}><span>{{ s }}</span></label>
+   {% else %}<p class="nd-empty">Nema dostupnih termina za odabrani datum. Subotom i nedjeljom ne radimo.</p>{% endfor %}
+  </div></section>
+  <section class="nd-section"><h2 class="nd-heading"><span class="nd-num">04 /</span> Tvoji podaci</h2><div class="nd-details"><input name="name" placeholder="Ime i prezime" autocomplete="name" required><input name="phone" placeholder="Broj telefona" autocomplete="tel" type="tel" required></div></section>
+  <button class="nd-submit" type="submit">REZERVIŠI TERMIN →</button><p class="nd-note">Ponedjeljak – petak · Zadnji termin završava do 20:00</p>
+ </form></div>
+</div>
+<script>
+(function(){
+ const dateInput=document.getElementById('nd-date');
+ const services=document.querySelectorAll('.nd-booking input[name="service"]');
+ function refresh(){const chosen=document.querySelector('.nd-booking input[name="service"]:checked');const params=new URLSearchParams({date:dateInput.value,service:chosen.value});window.location.href='/?'+params.toString();}
+ dateInput.addEventListener('change',refresh);
+ services.forEach(s=>s.addEventListener('change',refresh));
+ document.getElementById('nd-form').addEventListener('submit',function(e){if(!this.querySelector('input[name="time"]:checked')){e.preventDefault();alert('Molimo odaberite slobodan termin.');}});
+})();
+</script>
+{% endblock %}
