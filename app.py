@@ -11,7 +11,7 @@ DB = os.environ.get('DATABASE_PATH', 'bookings.db')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dino123')
 TG_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TG_CHAT = os.environ.get('TELEGRAM_CHAT_ID', '')
-SLOTS = [f'{h:02d}:{m:02d}' for h in range(9, 20) for m in (0, 30)]
+SLOTS = [f'{h:02d}:{m:02d}' for h in range(11, 20) for m in (0, 30)]
 STATUS = {'dolazi':'Dolazi','zavrseno':'Završeno','nije_dosao':'Nije došao','otkazano':'Otkazano'}
 SERVICES = {'sisanje_pranje_brada': 'Šišanje i brada', 'sisanje_pranje_farbanje_brada': 'Šišanje, farbanje i brada'}
 
